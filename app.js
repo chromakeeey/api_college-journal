@@ -15,6 +15,7 @@ app.use(cors())
 
 app.use('/', require('./routes/group.route'))
 app.use('/', require('./routes/subject.route'))
+app.use('/', require('./routes/program.route'))
 
 /*app.use('/api/', require('./routes/user.route'))
 app.use('/api/', require('./routes/subject.route'))
