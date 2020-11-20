@@ -1,40 +1,38 @@
 const { Router } = require("express");
 const router = Router();
 
-const { groups, group_subjects, subjects } = require('../json/data')
+const { body, param } = require('express-validator')
 
-router.get('/group/all', async (req, res) => {
-    try {
-        res.status(200).json(groups);    
-    } catch(e) {
-        console.log(e);
-        res.status(500).json({ message: "An error occurred" });
-    }
+const {
+    getGroupSubjects,
+    addGroupSubject
+} = require('../mysql/group.commands')
+
+router.get('/groups/:id/subjects', [
+    param('id').toInt()
+], [
+   // middlewares
+], async (req, res) => {
+    const groupId = req.params.id;
+    const subjects = await getGroupSubjects(groupId)
+
+    console.log(subjects)
+    res.status(200).json(subjects);
 })
 
-router.post('/group/subjects', async (req, res) => {
-    try {
-        
+router.post('/groups/subjects', [
+    body('group_id').isInt(),
+    body('subgroup_id').isInt(),
+    body('subject_id').isInt(),
+    body('user_id').isInt(),
+    body('program_education_id').isInt()
+], [
+    // middlewares
+], async (req, res) => {
+    const groupSubject = req.body;
 
-        const group = req.body
-        console.log(group)
-        const filterSubjects = group_subjects.filter(iterator => iterator.group_id === group.id )
-        let subjectWithName = []
-
-        filterSubjects.forEach(filterSubject => {
-            subjectWithName.push(
-                {
-                    group_subject: filterSubject,
-                    subject: subjects.find(fSubject => fSubject.id === filterSubject.subject_id)
-                }
-            )
-        })
-
-        res.status(200).json(subjectWithName); 
-    } catch(e) {
-        console.log(e);
-        res.status(500).json({ message: "An error occurred" });
-    }
+    await addGroupSubject(groupSubject);
+    res.status(200).end();
 })
 
 module.exports = router

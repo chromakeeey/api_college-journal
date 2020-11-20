@@ -15,5 +15,4 @@ router.get('/subject/get', async (req, res) => {
     }
 })
 
-
 module.exports = router

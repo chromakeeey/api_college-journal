@@ -1,6 +1,6 @@
 const { groups, subjects, group_subjects, users, program_education, grade } = require('./json/data')
 
-console.log(subjects)
+require('dotenv').config()
 
 
 const express = require("express")
