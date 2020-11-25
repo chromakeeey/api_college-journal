@@ -5,7 +5,8 @@ const { body, param } = require('express-validator')
 
 const {
     getGroupSubjects,
-    addGroupSubject
+    addGroupSubject,
+    getGroups
 } = require('../mysql/group.commands')
 
 router.get('/groups/:id/subjects', [
@@ -34,5 +35,21 @@ router.post('/groups/subjects', [
     await addGroupSubject(groupSubject);
     res.status(200).end();
 })
+
+router.get('/groups', async (req, res) => {
+    const groups = await getGroups();
+
+    if (!groups.length) {
+        res.status(204).end();
+    }
+
+    groups.forEach(group => {
+        group.group_name = ''.concat(group.specialty_id, group.course, group.subgroup);
+    });
+
+    res.status(200).json(groups);
+});
+
+
 
 module.exports = router

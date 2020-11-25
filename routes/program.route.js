@@ -3,7 +3,6 @@ const router = Router();
 
 const { body, param } = require("express-validator");
 
-const { program_education } = require('../json/data')
 
 const {
     getProgram,

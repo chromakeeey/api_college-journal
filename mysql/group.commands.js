@@ -1,4 +1,5 @@
 const QueryHelper = require('../helpers/QueryHelper');
+const { connectionPool } = require('./connection')
 
 const getGroupSubjects = (groupId) => {
     return QueryHelper.query('SELECT * FROM subject_group WHERE group_id = ?')
@@ -20,7 +21,14 @@ const addGroupSubject = (groupSubject) => {
         .commit();
 }
 
+const getGroups = async () => {
+    const [rows] = await connectionPool.query('SELECT * FROM `group`');
+
+    return rows;
+};
+
 module.exports = {
     getGroupSubjects,
     addGroupSubject,
+    getGroups
 }
