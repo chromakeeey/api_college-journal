@@ -1,5 +1,3 @@
-const { groups, subjects, group_subjects, users, program_education, grade } = require('./json/data')
-
 require('dotenv').config()
 
 
@@ -12,7 +10,9 @@ const PORT = process.env.PORT || config.get('port')
 
 app.use(express.json({extended: true}))
 app.use(cors())
+app.use(express.static('public'))
 
+app.use('/', require('./routes/user.route'))
 app.use('/', require('./routes/group.route'))
 app.use('/', require('./routes/subject.route'))
 app.use('/', require('./routes/program.route'))
