@@ -22,8 +22,6 @@ router.get('/users', async (req, res) => {
         res.status(204).end();
     }
 
-    let complectUsers = [];
-
     await Promise.all(users.map(async (user) => {
         const accountType = user.account_type;
         user.account_type = await getTypeAccount(accountType);

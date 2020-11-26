@@ -1,12 +1,10 @@
-const QueryHelper = require('../helpers/QueryHelper');
+//const QueryHelper = require('../helpers/QueryHelper');
+const { connectionPool } = require('./connection')
 
-const getProgram = (programId) => {
-    return QueryHelper.query('SELECT * FROM program_education WHERE id = ?')
-        .withParams([
-            programId
-        ])
-        .then((result) => result[0])
-        .commit();
+const getProgram = async (programId) => {
+    const [rows] = await connectionPool.query('SELECT * FROM program_education WHERE id = ?', programId);
+
+    return rows[0];
 }
 
 const addProgram = (program) => {
