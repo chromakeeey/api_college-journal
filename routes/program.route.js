@@ -36,4 +36,24 @@ router.post('/programs', [
     res.status(200).end();
 })
 
+/*{
+    name: '',
+    int: 2434,
+    float: 25.65
+}*/
+
+router.post('/test', [
+    body('name').isLength({
+        min: 4,
+        max: 64
+    }),
+    body('int').isInt(),
+    body('float').isFloat()
+], [
+    // middlewares
+], async (req, res) => {
+    console.log(req.body);
+    res.status(200).end();
+})
+
 module.exports = router;

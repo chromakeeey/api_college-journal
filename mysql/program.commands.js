@@ -8,6 +8,8 @@ const getProgram = async (programId) => {
 }
 
 const addProgram = (program) => {
+    await connectionPool.query('INSERT INTO ...')
+
     return QueryHelper.query('INSERT INTO program_education (specialty, course, subject_id, name) VALUES (?, ?, ?, ?)')
         .withParams(
             program.specialty_id,
