@@ -5,6 +5,7 @@ const { body, param } = require("express-validator");
 
 const {
     getProgram,
+    getProgramThemes,//
     addProgram
 } = require('../mysql/program.commands')
 

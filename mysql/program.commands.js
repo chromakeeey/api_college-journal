@@ -6,6 +6,12 @@ const getProgram = async (programId) => {
 
     return rows[0];
 }
+//
+const getProgramThemes = async (programId) => {
+    const [rows] = await connectionPool.query('SELECT pe.name, pe.specialty, pe.course, pt.name, pt.type, FROM program_education AS pe, program_themes AS pt WHERE (pe.id = pt.program_education_id) AND (pe.id = ?)', programId);
+
+    return rows[0];
+}
 
 const addProgram = (program) => {
     return QueryHelper.query('INSERT INTO program_education (specialty, course, subject_id, name) VALUES (?, ?, ?, ?)')
@@ -21,5 +27,6 @@ const addProgram = (program) => {
 
 module.exports = {
     getProgram,
+    getProgramThemes,//
     addProgram
 }
