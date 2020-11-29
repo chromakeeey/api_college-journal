@@ -20,18 +20,6 @@ router.get('/programs/:id', [
     res.status(200).json(program);
 } )
 
-//
-router.get('/programs-themes/:id', [
-    param('id').toInt()
-], [
-    // middlewares
-], async (req, res) => {
-    const id = req.params.id;
-    const program = await getProgramThemes(id)
-
-    res.status(200).json(program);
-} )
-
 router.post('/programs', [
     body('specialty_id').isInt(),
     body('course').isInt(),
