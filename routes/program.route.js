@@ -5,7 +5,7 @@ const { body, param } = require("express-validator");
 
 const {
     getProgram,
-    getProgramThemes,//
+    addProgramTheme,
     addProgram
 } = require('../mysql/program.commands')
 
@@ -34,6 +34,25 @@ router.post('/programs', [
     const program = req.body;
 
     await addProgram(program);
+    res.status(200).end();
+})
+
+router.post('/programs/:id/themes', [
+    param('id').toInt(),
+    body('name').isLength({
+        min: 2,
+        max: 64
+    }).withMessage('Min length of name - 2, max - 64'),
+    body('type').isInt().withMessage('Only integer value')
+], [
+    // middlewares
+], async(req, res) => {
+    const id = req.params.id;
+    let theme = req.body;
+
+    theme.program_education_id = id;
+
+    await addProgramTheme(id, theme);
     res.status(200).end();
 })
 
