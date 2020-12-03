@@ -1,11 +1,15 @@
 const QueryHelper = require('../helpers/QueryHelper');
 const { connectionPool } = require('./connection')
 
-const getGroupSubjects = (groupId) => {
-    return QueryHelper.query('SELECT * FROM subject_group WHERE group_id = ?')
-        .withParams(groupId)
-        .then((result) => result)
-        .commit();
+const getGroupSubjects = async (groupId) => {
+    const [rows] = await connectionPool.query(`
+        SELECT subject_group.program_education_id,
+        subject.name, user.first_name, user.last_name, user.father_name
+        FROM subject_group, subject, user
+        WHERE (subject_group.group_id = ?)
+        AND ((subject.id = subject_group.subject_id)
+        AND (user.id = subject_group.user_id))`, groupId);
+    return rows;
 }
 
 const addGroupSubject = async (groupSubject) => {
@@ -51,5 +55,5 @@ module.exports = {
     getGroupSubjects,
     addGroupSubject,
     getGroups,
-    changeProgram,
+    changeProgram
 }
