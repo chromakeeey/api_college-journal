@@ -18,7 +18,6 @@ router.get('/groups/:id/subjects', [
     const groupId = req.params.id;
     const subjects = await getGroupSubjects(groupId)
 
-    console.log(subjects)
     res.status(200).json(subjects);
 })
 

@@ -1,14 +1,19 @@
-const QueryHelper = require('../helpers/QueryHelper');
 const { connectionPool } = require('./connection')
 
 const getGroupSubjects = async (groupId) => {
-    const [rows] = await connectionPool.query(`
-        SELECT subject_group.program_education_id,
-        subject.name, user.first_name, user.last_name, user.father_name
-        FROM subject_group, subject, user
-        WHERE (subject_group.group_id = ?)
-        AND ((subject.id = subject_group.subject_id)
-        AND (user.id = subject_group.user_id))`, groupId);
+    let [rows] = await connectionPool.query('SELECT * FROM subject_group WHERE group_id = ?', groupId)
+
+    await Promise.all(rows.map(async (row) => {
+        const [subject] = await connectionPool.query('SELECT * FROM subject WHERE id = ?', row.subject_id);
+        const [user] = await connectionPool.query('SELECT id, first_name, last_name, father_name FROM user WHERE id = ?', row.user_id);
+
+        delete row.user_id;
+        delete row.subject_id;
+
+        row.user = user[0];
+        row.subject = subject[0];
+    }))
+
     return rows;
 }
 
