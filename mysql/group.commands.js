@@ -1,11 +1,20 @@
-const QueryHelper = require('../helpers/QueryHelper');
 const { connectionPool } = require('./connection')
 
-const getGroupSubjects = (groupId) => {
-    return QueryHelper.query('SELECT * FROM subject_group WHERE group_id = ?')
-        .withParams(groupId)
-        .then((result) => result)
-        .commit();
+const getGroupSubjects = async (groupId) => {
+    let [rows] = await connectionPool.query('SELECT * FROM subject_group WHERE group_id = ?', groupId)
+
+    await Promise.all(rows.map(async (row) => {
+        const [subject] = await connectionPool.query('SELECT * FROM subject WHERE id = ?', row.subject_id);
+        const [user] = await connectionPool.query('SELECT id, first_name, last_name, father_name FROM user WHERE id = ?', row.user_id);
+
+        delete row.user_id;
+        delete row.subject_id;
+
+        row.user = user[0];
+        row.subject = subject[0];
+    }))
+
+    return rows;
 }
 
 const addGroupSubject = async (groupSubject) => {
@@ -51,5 +60,5 @@ module.exports = {
     getGroupSubjects,
     addGroupSubject,
     getGroups,
-    changeProgram,
+    changeProgram
 }
