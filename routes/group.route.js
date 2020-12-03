@@ -6,7 +6,8 @@ const { body, param } = require('express-validator')
 const {
     getGroupSubjects,
     addGroupSubject,
-    getGroups
+    getGroups,
+    changeProgram
 } = require('../mysql/group.commands')
 
 router.get('/groups/:id/subjects', [
@@ -50,6 +51,36 @@ router.get('/groups', async (req, res) => {
     res.status(200).json(groups);
 });
 
+router.post('/groups/:id/subjects', [
+    param('id').toInt(),
 
+    body('subgroup_id').isInt().withMessage('Only integer value'),
+    body('subject_id').isInt().withMessage('Only integer value'),
+    body('user_id').isInt().withMessage('Only integer value')
+
+], [
+    // middlewares
+], async (req, res) => {
+    const groupId = req.params.id;
+    const body = req.body;
+
+    body.group_id = groupId;
+
+    await addGroupSubject(body);
+    res.status(200).end();
+})
+
+router.put('/groups/subjects/:id/program-education', [
+    param('id').toInt(),
+    body('program_education_id').isInt().withMessage('Only integer value')
+], [
+    // middlewares
+], async (req, res) => {
+    const id = req.params.id;
+    const program_education_id = req.body.program_education_id;
+
+    await changeProgram(id, program_education_id);
+    res.status(200).end();
+})
 
 module.exports = router

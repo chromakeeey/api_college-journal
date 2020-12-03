@@ -8,17 +8,22 @@ const getGroupSubjects = (groupId) => {
         .commit();
 }
 
-const addGroupSubject = (groupSubject) => {
-    return QueryHelper.query('INSERT INTO subject_group (group_id, subgroup_id, subject_id, user_id, program_education_id) VALUES (?, ?, ?, ?, ?)')
-        .withParams(
-            groupSubject.group_id,
-            groupSubject.subgroup_id,
-            groupSubject.subject_id,
-            groupSubject.user_id,
-            groupSubject.program_education_id
-        )
-        .then(result => result.insertId)
-        .commit();
+const addGroupSubject = async (groupSubject) => {
+    const sql = `
+        INSERT INTO subject_group
+        (group_id, subgroup_id, subject_id, user_id)
+        VALUES
+        (?, ?, ?, ?)
+    `
+
+    const [rows] = await connectionPool.query(sql, [
+        groupSubject.group_id,
+        groupSubject.subgroup_id,
+        groupSubject.subject_id,
+        groupSubject.user_id
+    ])
+
+    return rows.insertId;
 }
 
 const getGroups = async () => {
@@ -27,8 +32,24 @@ const getGroups = async () => {
     return rows;
 };
 
+const changeProgram = async (id, programEducationId) => {
+    const sql = `
+        UPDATE subject_group
+        SET program_education_id = ?
+        WHERE id = ?
+    `;
+
+    const [rows] = await connectionPool.query(sql, [
+        programEducationId,
+        id
+    ]);
+
+    return rows.affectedRows > 0;
+}
+
 module.exports = {
     getGroupSubjects,
     addGroupSubject,
-    getGroups
+    getGroups,
+    changeProgram,
 }
