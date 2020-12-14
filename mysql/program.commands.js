@@ -2,7 +2,7 @@ const { connectionPool } = require('./connection')
 
 const getProgram = async (programId) => {
     let [program] = await connectionPool.query('SELECT * FROM program_education WHERE id = ?', programId);
-    let [themes] = await connectionPool.query('SELECT name, type FROM program_themes WHERE program_education_id = ?', programId);
+    let [themes] = await connectionPool.query('SELECT id, name, type FROM program_themes WHERE program_education_id = ?', programId);
     
     if (program.length === 0) {
         return program[0];
