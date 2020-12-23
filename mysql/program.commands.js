@@ -1,4 +1,5 @@
-const { connectionPool } = require('./connection')
+const { connectionPool } = require('./connection');
+const { query } = require('express');
 
 const getProgram = async (programId) => {
     let [program] = await connectionPool.query('SELECT * FROM program_education WHERE id = ?', programId);
@@ -47,8 +48,38 @@ const addProgramTheme = async (programId, theme) => {
     return rows.insertId;
 }
 
+const getTheme = async (themeId) => {
+    const [rows] = await connectionPool.query('SELECT * FROM program_themes WHERE id = ?', themeId);
+
+    return rows[0];
+}
+
+const deleteTheme = async (themeId) => {
+    const [rows] = await connectionPool.query('DELETE FROM program_themes WHERE id = ?', themeId);
+
+    return rows.affectedRows > 0;
+}
+
+const changeProgramName = async (programId, name) => {
+    const sql = `
+        UPDATE program_education
+        SET name = ?
+        WHERE id = ?
+    `;
+
+    const [rows] = await connectionPool.query(sql, [
+        name,
+        programId
+    ]);
+
+    return rows.affectedRows > 0;
+}
+
 module.exports = {
     getProgram,
     addProgram,
-    addProgramTheme
+    addProgramTheme,
+    getTheme,
+    deleteTheme,
+    changeProgramName
 }
