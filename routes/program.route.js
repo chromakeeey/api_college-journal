@@ -5,8 +5,9 @@ const { body, param } = require("express-validator");
 
 const {
     getProgram,
-    addProgramTheme,
     addProgram,
+    deleteProgram,
+    addProgramTheme,
     getTheme,
     deleteTheme,
     changeProgramName
@@ -37,6 +38,17 @@ router.post('/programs', [
     const program = req.body;
 
     await addProgram(program);
+    res.status(200).end();
+})
+
+router.delete('/programs/:id', [
+    param('id').toInt()
+], [
+    // middlewares
+], async (req, res) => {
+    const id = req.params.id;
+
+    await deleteProgram(id);
     res.status(200).end();
 })
 

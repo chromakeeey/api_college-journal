@@ -31,6 +31,30 @@ const addProgram = async (program) => {
     return rows.insertId;
 }
 
+const deleteProgram = async (programId) => {
+    // Видаленн всіх оцінок, які були поставлені за предмети по даній програмі навчання
+    const [rows] = await connectionPool.query(
+        "SELECT id FROM subject_group WHERE program_education_id = ?", programId)
+        // console.log('subject_group_ids:')
+        // console.log(rows)
+    for(let obj of rows) {
+        // console.log('subject_group_id:')
+        // console.log(obj.id)
+        await connectionPool.query(
+            "DELETE FROM grade WHERE subject_group_id = ?", obj.id)
+    }
+    // Видалення всіх предметів даної програми
+    await connectionPool.query(
+        "DELETE FROM subject_group WHERE program_education_id = ?", programId)
+    // Видалення всіх тем даної програми
+    await connectionPool.query(
+        "DELETE FROM program_themes WHERE program_education_id = ?", programId)
+    // Видалення власне самої програми
+    await connectionPool.query(
+        "DELETE FROM program_education WHERE id = ?", programId)
+    console.log(`Deleted program education with id: ${programId}`)
+}
+
 const addProgramTheme = async (programId, theme) => {
     const sql = `
         INSERT INTO program_themes
@@ -78,6 +102,7 @@ const changeProgramName = async (programId, name) => {
 module.exports = {
     getProgram,
     addProgram,
+    deleteProgram,
     addProgramTheme,
     getTheme,
     deleteTheme,
