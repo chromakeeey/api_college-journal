@@ -1,6 +1,25 @@
 const { connectionPool } = require('./connection');
 const { query } = require('express');
 
+const addGrade = async (grade) => {
+    const sql = `
+        INSERT INTO grade
+        (program_themes_id, program_education_id,
+        user_id, mark, description, subject_group_id)
+        VALUES
+        (?, ?, ?, ?, ?, ?)
+    `;
+    const [rows] = await connectionPool.query(sql, [
+        grade.program_themes_id,
+        grade.program_education_id,
+        grade.user_id,
+        grade.mark,
+        grade.description,
+        grade.subject_group_id
+    ]);
+    return rows.insertId;
+}
+
 const getProgram = async (programId) => {
     let [program] = await connectionPool.query('SELECT * FROM program_education WHERE id = ?', programId);
     let [themes] = await connectionPool.query('SELECT id, name, type FROM program_themes WHERE program_education_id = ?', programId);
@@ -97,6 +116,7 @@ const changeProgramName = async (programId, name) => {
 }
 
 module.exports = {
+    addGrade,
     getProgram,
     addProgram,
     deleteProgram,
