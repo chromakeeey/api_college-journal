@@ -1,6 +1,23 @@
 const { connectionPool } = require('./connection');
 const { query } = require('express');
 
+const getGrades = async (userId, subjectId) => {
+    const sql = `
+        SELECT grade.*
+        FROM grade, user, subject_group
+        WHERE (grade.user_id = user.id AND grade.subject_group_id = subject_group.id) AND
+        (user.id = ? AND subject_group.subject_id = ?)
+    `;
+    const [userGrades] = await connectionPool.query(sql, [
+        userId,
+        subjectId
+    ]);
+
+    let [subject] = await connectionPool.query('SELECT * FROM subject WHERE id = ?', subjectId);
+    subject[0].grades = userGrades;
+    return subject[0];
+}
+
 const addGrade = async (grade) => {
     const sql = `
         INSERT INTO grade
@@ -116,6 +133,7 @@ const changeProgramName = async (programId, name) => {
 }
 
 module.exports = {
+    getGrades,
     addGrade,
     getProgram,
     addProgram,

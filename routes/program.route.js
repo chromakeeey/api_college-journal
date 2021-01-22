@@ -4,6 +4,7 @@ const router = Router();
 const { body, param } = require("express-validator");
 
 const {
+    getGrades,
     addGrade,
     getProgram,
     addProgram,
@@ -13,6 +14,20 @@ const {
     deleteTheme,
     changeProgramName
 } = require('../mysql/program.commands')
+
+
+router.get('/users/:userid/subjects/:subjectid/grades', [
+    param('userid').toInt(),
+    param('subjectid').toInt(),
+], [
+    // middlewares
+], async (req, res) => {
+    const userId = req.params.userid;
+    const subjectId = req.params.subjectid;
+    const grades = await getGrades(userId, subjectId);
+
+    res.status(200).json(grades);
+})
 
 router.post('/grades', [
     body('program_themes_id').isInt(),
