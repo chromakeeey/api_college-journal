@@ -5,6 +5,7 @@ const { body, param } = require("express-validator");
 
 const {
     getGrades,
+    getGroupGrades,
     addGrade,
     getProgram,
     addProgram,
@@ -27,6 +28,19 @@ router.get('/users/:userid/subjects/:subjectid/grades', [
     const grades = await getGrades(userId, subjectId);
 
     res.status(200).json(grades);
+})
+
+router.get('/groups/:groupid/subjects/:subjectid/grades', [
+    param('groupid').toInt(),
+    param('subjectid').toInt(),
+], [
+    // middlewares
+], async (req, res) => {
+    const groupId = req.params.groupid;
+    const subjectId = req.params.subjectid;
+    const groupGrades = await getGroupGrades(groupId, subjectId);
+
+    res.status(200).json(groupGrades);
 })
 
 router.post('/grades', [
