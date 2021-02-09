@@ -50,14 +50,13 @@ const getGroupGrades = async (groupId, subjectId) => {
 const addGrade = async (grade) => {
     const sql = `
         INSERT INTO grade
-        (program_themes_id, program_education_id,
-        user_id, mark, description, subject_group_id)
+        (program_themes_id, user_id,
+        mark, description, subject_group_id)
         VALUES
-        (?, ?, ?, ?, ?, ?)
+        (?, ?, ?, ?, ?)
     `;
     const [rows] = await connectionPool.query(sql, [
         grade.program_themes_id,
-        grade.program_education_id,
         grade.user_id,
         grade.mark,
         grade.description,
@@ -68,7 +67,7 @@ const addGrade = async (grade) => {
 
 const getProgram = async (programId) => {
     let [program] = await connectionPool.query('SELECT * FROM program_education WHERE id = ?', programId);
-    let [themes] = await connectionPool.query('SELECT id, name, type FROM program_themes WHERE program_education_id = ?', programId);
+    let [themes] = await connectionPool.query('SELECT id, name, work_id FROM program_themes WHERE program_education_id = ?', programId);
     
     if (program.length === 0) {
         return program[0];
@@ -117,10 +116,10 @@ const deleteProgram = async (programId) => {
     await connectionPool.query('DELETE FROM program_education WHERE id = ?', programId);
 }
 
-const addProgramTheme = async (programId, theme) => {
+const addTheme = async (programId, theme) => {
     const sql = `
         INSERT INTO program_themes
-        (program_education_id, name, type)
+        (program_education_id, name, work_id)
         VALUES
         (?, ?, ?)
     `;
@@ -128,7 +127,7 @@ const addProgramTheme = async (programId, theme) => {
     const [rows] = await connectionPool.query(sql, [
         programId,
         theme.name,
-        theme.type
+        theme.work_id
     ])
 
     return rows.insertId;
@@ -162,14 +161,18 @@ const changeProgramName = async (programId, name) => {
 }
 
 module.exports = {
+    // Оцінки
+    addGrade,
     getGrades,
     getGroupGrades,
-    addGrade,
-    getProgram,
+    // todo deleteGrade,
+    // Програма навчання
     addProgram,
+    getProgram,
+    changeProgramName,
     deleteProgram,
-    addProgramTheme,
+    // Теми програми навчання
+    addTheme,
     getTheme,
-    deleteTheme,
-    changeProgramName
+    deleteTheme
 }

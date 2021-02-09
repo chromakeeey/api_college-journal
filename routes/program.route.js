@@ -4,16 +4,20 @@ const router = Router();
 const { body, param } = require("express-validator");
 
 const {
-    getGrades,
-    getGroupGrades,
-    addGrade,
-    getProgram,
-    addProgram,
-    deleteProgram,
-    addProgramTheme,
-    getTheme,
-    deleteTheme,
-    changeProgramName
+    // Оцінки
+    addGrade, //ok
+    getGrades, //ok
+    getGroupGrades, //ok
+    // todo deleteGrade,
+    // Програма навчання
+    addProgram, //ok
+    getProgram, //ok
+    changeProgramName, //ok
+    deleteProgram, //ok
+    // Теми програми навчання
+    addTheme, //ok
+    getTheme, //ok
+    deleteTheme //ok
 } = require('../mysql/program.commands')
 
 
@@ -45,7 +49,6 @@ router.get('/groups/:groupid/subjects/:subjectid/grades', [
 
 router.post('/grades', [
     body('program_themes_id').isInt(),
-    body('program_education_id').isInt(),
     body('user_id').isInt(),
     body('subject_group_id').isInt(),
     body('mark').isInt(),
@@ -107,7 +110,7 @@ router.post('/programs/:id/themes', [
         min: 2,
         max: 64
     }).withMessage('Min length of name - 2, max - 64'),
-    body('type').isInt().withMessage('Only integer value')
+    body('work_id').isInt().withMessage('Only integer value')
 ], [
     // middlewares
 ], async(req, res) => {
@@ -116,7 +119,7 @@ router.post('/programs/:id/themes', [
 
     theme.program_education_id = id;
 
-    await addProgramTheme(id, theme);
+    await addTheme(id, theme);
     res.status(200).end();
 })
 
