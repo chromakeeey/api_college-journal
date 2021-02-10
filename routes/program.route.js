@@ -8,7 +8,7 @@ const {
     addGrade, //ok
     getGrades, //ok
     getGroupGrades, //ok
-    // todo deleteGrade,
+    deleteGrade, //ok
     // Програма навчання
     addProgram, //ok
     getProgram, //ok
@@ -62,6 +62,17 @@ router.post('/grades', [
     const grade = req.body;
 
     await addGrade(grade);
+    res.status(200).end();
+})
+
+router.delete('/grades/:id', [
+    param('id').toInt()
+], [
+    // middlewares
+], async (req, res) => {
+    const id = req.params.id;
+
+    await deleteGrade(id);
     res.status(200).end();
 })
 

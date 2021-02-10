@@ -65,6 +65,12 @@ const addGrade = async (grade) => {
     return rows.insertId;
 }
 
+const deleteGrade = async (gradeId) => {
+    const [rows] = await connectionPool.query('DELETE FROM grade WHERE id = ?', gradeId);
+
+    return rows.affectedRows > 0;
+}
+
 const getProgram = async (programId) => {
     let [program] = await connectionPool.query('SELECT * FROM program_education WHERE id = ?', programId);
     let [themes] = await connectionPool.query('SELECT id, name, work_id FROM program_themes WHERE program_education_id = ?', programId);
@@ -165,7 +171,7 @@ module.exports = {
     addGrade,
     getGrades,
     getGroupGrades,
-    // todo deleteGrade,
+    deleteGrade,
     // Програма навчання
     addProgram,
     getProgram,
