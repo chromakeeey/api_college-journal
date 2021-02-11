@@ -1,6 +1,19 @@
 const { connectionPool } = require('./connection');
 const { query } = require('express');
 
+const getGroupSubjects = async (groupId) => {
+    const sql = `
+        SELECT subject.*
+        FROM subject, subject_group
+        WHERE (subject.id = subject_group.subject_id)
+        AND (subject_group.group_id = ?)
+    `;
+    const [groupSubjects] = await connectionPool.query(sql, [
+        groupId
+    ]);
+    return groupSubjects;
+}
+
 const getGrades = async (userId, subjectId) => {
     const sql = `
         SELECT grade.*
@@ -73,7 +86,7 @@ const deleteGrade = async (gradeId) => {
 
 const getProgram = async (programId) => {
     let [program] = await connectionPool.query('SELECT * FROM program_education WHERE id = ?', programId);
-    let [themes] = await connectionPool.query('SELECT id, name, work_id FROM program_themes WHERE program_education_id = ?', programId);
+    let [themes] = await connectionPool.query('SELECT id, name, theme_type_id FROM program_themes WHERE program_education_id = ?', programId);
     
     if (program.length === 0) {
         return program[0];
@@ -125,7 +138,7 @@ const deleteProgram = async (programId) => {
 const addTheme = async (programId, theme) => {
     const sql = `
         INSERT INTO program_themes
-        (program_education_id, name, work_id)
+        (program_education_id, name, theme_type_id)
         VALUES
         (?, ?, ?)
     `;
@@ -133,7 +146,7 @@ const addTheme = async (programId, theme) => {
     const [rows] = await connectionPool.query(sql, [
         programId,
         theme.name,
-        theme.work_id
+        theme.theme_type_id
     ])
 
     return rows.insertId;
@@ -167,6 +180,8 @@ const changeProgramName = async (programId, name) => {
 }
 
 module.exports = {
+    // Предмети групи
+    getGroupSubjects,
     // Оцінки
     addGrade,
     getGrades,

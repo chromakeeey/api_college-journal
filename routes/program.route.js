@@ -4,6 +4,8 @@ const router = Router();
 const { body, param } = require("express-validator");
 
 const {
+    // Предмети групи
+    getGroupSubjects,
     // Оцінки
     addGrade, //ok
     getGrades, //ok
@@ -20,6 +22,16 @@ const {
     deleteTheme //ok
 } = require('../mysql/program.commands')
 
+router.get('/groups/:id/subjects/list', [
+    param('id').toInt()
+], [
+    // middlewares
+], async (req, res) => {
+    const groupId = req.params.id;
+    const groupSubjects = await getGroupSubjects(groupId);
+
+    res.status(200).json(groupSubjects);
+})
 
 router.get('/users/:userid/subjects/:subjectid/grades', [
     param('userid').toInt(),
@@ -121,7 +133,7 @@ router.post('/programs/:id/themes', [
         min: 2,
         max: 64
     }).withMessage('Min length of name - 2, max - 64'),
-    body('work_id').isInt().withMessage('Only integer value')
+    body('theme_type_id').isInt().withMessage('Only integer value')
 ], [
     // middlewares
 ], async(req, res) => {
