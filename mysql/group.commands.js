@@ -1,5 +1,18 @@
 const { connectionPool } = require('./connection')
 
+const getGroupSubjectsList = async (groupId) => {
+    const sql = `
+        SELECT subject.*
+        FROM subject, subject_group
+        WHERE (subject.id = subject_group.subject_id)
+        AND (subject_group.group_id = ?)
+    `;
+    const [groupSubjects] = await connectionPool.query(sql, [
+        groupId
+    ]);
+    return groupSubjects;
+}
+
 const getGroupSubjects = async (groupId) => {
     let [rows] = await connectionPool.query('SELECT * FROM subject_group WHERE group_id = ?', groupId)
 
@@ -57,6 +70,7 @@ const changeProgram = async (id, programEducationId) => {
 }
 
 module.exports = {
+    getGroupSubjectsList,
     getGroupSubjects,
     addGroupSubject,
     getGroups,

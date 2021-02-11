@@ -4,11 +4,23 @@ const router = Router();
 const { body, param } = require('express-validator')
 
 const {
+    getGroupSubjectsList,
     getGroupSubjects,
     addGroupSubject,
     getGroups,
     changeProgram
 } = require('../mysql/group.commands')
+
+router.get('/groups/:id/subjects/list', [
+    param('id').toInt()
+], [
+    // middlewares
+], async (req, res) => {
+    const groupId = req.params.id;
+    const groupSubjects = await getGroupSubjectsList(groupId);
+
+    res.status(200).json(groupSubjects);
+})
 
 router.get('/groups/:id/subjects', [
     param('id').toInt()

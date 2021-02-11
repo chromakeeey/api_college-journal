@@ -4,100 +4,12 @@ const router = Router();
 const { body, param } = require("express-validator");
 
 const {
-    // Предмети групи
-    getGroupSubjects,
-    // Оцінки
-    addGrade, //ok
-    getGrades, //ok
-    getGroupGrades, //ok
-    deleteGrade, //ok
     // Програма навчання
     addProgram, //ok
     getProgram, //ok
     changeProgramName, //ok
-    deleteProgram, //ok
-    // Теми програми навчання
-    addTheme, //ok
-    getTheme, //ok
-    deleteTheme //ok
+    deleteProgram
 } = require('../mysql/program.commands')
-
-router.get('/groups/:id/subjects/list', [
-    param('id').toInt()
-], [
-    // middlewares
-], async (req, res) => {
-    const groupId = req.params.id;
-    const groupSubjects = await getGroupSubjects(groupId);
-
-    res.status(200).json(groupSubjects);
-})
-
-router.get('/users/:userid/subjects/:subjectid/grades', [
-    param('userid').toInt(),
-    param('subjectid').toInt(),
-], [
-    // middlewares
-], async (req, res) => {
-    const userId = req.params.userid;
-    const subjectId = req.params.subjectid;
-    const grades = await getGrades(userId, subjectId);
-
-    res.status(200).json(grades);
-})
-
-router.get('/groups/:groupid/subjects/:subjectid/grades', [
-    param('groupid').toInt(),
-    param('subjectid').toInt(),
-], [
-    // middlewares
-], async (req, res) => {
-    const groupId = req.params.groupid;
-    const subjectId = req.params.subjectid;
-    const groupGrades = await getGroupGrades(groupId, subjectId);
-
-    res.status(200).json(groupGrades);
-})
-
-router.post('/grades', [
-    body('program_themes_id').isInt(),
-    body('user_id').isInt(),
-    body('subject_group_id').isInt(),
-    body('mark').isInt(),
-    body('description').isLength({
-        min: 2,
-        max: 128
-    })
-], [
-    // middlewares
-], async (req, res) => {
-    const grade = req.body;
-
-    await addGrade(grade);
-    res.status(200).end();
-})
-
-router.delete('/grades/:id', [
-    param('id').toInt()
-], [
-    // middlewares
-], async (req, res) => {
-    const id = req.params.id;
-
-    await deleteGrade(id);
-    res.status(200).end();
-})
-
-router.get('/programs/:id', [
-    param('id').toInt()
-], [
-    // middlewares
-], async (req, res) => {
-    const id = req.params.id;
-    const program = await getProgram(id)
-
-    res.status(200).json(program);
-} )
 
 router.post('/programs', [
     body('specialty_id').isInt(),
@@ -116,35 +28,16 @@ router.post('/programs', [
     res.status(200).end();
 })
 
-router.delete('/programs/:id', [
+router.get('/programs/:id', [
     param('id').toInt()
 ], [
     // middlewares
 ], async (req, res) => {
     const id = req.params.id;
+    const program = await getProgram(id)
 
-    await deleteProgram(id);
-    res.status(200).end();
-})
-
-router.post('/programs/:id/themes', [
-    param('id').toInt(),
-    body('name').isLength({
-        min: 2,
-        max: 64
-    }).withMessage('Min length of name - 2, max - 64'),
-    body('theme_type_id').isInt().withMessage('Only integer value')
-], [
-    // middlewares
-], async(req, res) => {
-    const id = req.params.id;
-    let theme = req.body;
-
-    theme.program_education_id = id;
-
-    await addTheme(id, theme);
-    res.status(200).end();
-})
+    res.status(200).json(program);
+} )
 
 router.put('/programs/:id/name', [
     param('id').toInt(),
@@ -162,25 +55,14 @@ router.put('/programs/:id/name', [
     res.status(200).end();
 })
 
-router.get('/themes/:id', [
-    param('id').toInt()
-], [
-    // middlewares
-], async (req, res) => {
-    const id = req.params.id;
-    const theme = await getTheme(id);
-
-    res.status(200).json(theme);
-})
-
-router.delete('/themes/:id', [
+router.delete('/programs/:id', [
     param('id').toInt()
 ], [
     // middlewares
 ], async (req, res) => {
     const id = req.params.id;
 
-    await deleteTheme(id);
+    await deleteProgram(id);
     res.status(200).end();
 })
 
