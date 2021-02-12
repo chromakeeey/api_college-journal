@@ -16,6 +16,8 @@ app.use('/', require('./routes/user.route'))
 app.use('/', require('./routes/group.route'))
 app.use('/', require('./routes/subject.route'))
 app.use('/', require('./routes/program.route'))
+app.use('/', require('./routes/theme.route'))
+app.use('/', require('./routes/grade.route'))
 
 /*app.use('/api/', require('./routes/user.route'))
 app.use('/api/', require('./routes/subject.route'))
