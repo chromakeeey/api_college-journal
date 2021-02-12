@@ -19,6 +19,19 @@ const addProgram = async (program) => {
     return rows.insertId;
 }
 
+const getPrograms = async (course, specialtyId) => {
+    const sql = `
+        SELECT id, subject_id, name, first_semester, last_semester
+        FROM program_education as p_e
+        WHERE (p_e.course = ?) AND (p_e.specialty_id = ?)
+    `;
+    const [programs] = await connectionPool.query(sql, [
+        course,
+        specialtyId
+    ])
+    return programs;
+}
+
 const getProgram = async (programId) => {
     let [program] = await connectionPool.query('SELECT * FROM program_education WHERE id = ?', programId);
     let [themes] = await connectionPool.query('SELECT id, name, theme_type_id FROM program_themes WHERE program_education_id = ?', programId);
@@ -70,6 +83,7 @@ const deleteProgram = async (programId) => {
 module.exports = {
     // Програма навчання
     addProgram,
+    getPrograms,
     getProgram,
     changeProgramName,
     deleteProgram,

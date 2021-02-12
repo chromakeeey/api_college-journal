@@ -6,6 +6,7 @@ const { body, param } = require("express-validator");
 const {
     // Програма навчання
     addProgram, //ok
+    getPrograms,
     getProgram, //ok
     changeProgramName, //ok
     deleteProgram
@@ -27,6 +28,18 @@ router.post('/programs', [
     await addProgram(program);
     res.status(200).end();
 })
+
+router.get('/course/:courseNumber/specialty/:specialtyId/programs', [
+    param('id').toInt()
+], [
+    // middlewares
+], async (req, res) => {
+    const course = req.params.courseNumber;
+    const specialtyId = req.params.specialtyId;
+    const programs = await getPrograms(course, specialtyId)
+
+    res.status(200).json(programs);
+} )
 
 router.get('/programs/:id', [
     param('id').toInt()
