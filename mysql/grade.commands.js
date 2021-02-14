@@ -18,10 +18,16 @@ const addGrade = async (grade) => {
     return rows.insertId;
 }
 
-const getUserGradesForTheme = async (userId, programId, themeTypeId) => {
+const getStudentGradesForTheme = async (studentId, programId, themeTypeId) => {
+    // Отримання інфи про потрібного студента
+    const studentSql = `
+        SELECT id, first_name, last_name, father_name
+        FROM user, student
+        WHERE (user.id = student.user_id) AND (user.id = ?)
+    `;
     // Отримування id тем потрібного типу, вказаної програми навчаня
     const themesSql = `
-        SELECT id as theme_id
+        SELECT id
         FROM program_themes
         WHERE (program_education_id = ?) AND (theme_type_id = ?)
     `;
@@ -32,36 +38,45 @@ const getUserGradesForTheme = async (userId, programId, themeTypeId) => {
         WHERE (grade.user_id = ?) AND (grade.program_themes_id = ?)
     `;
 
+    const [student] = await connectionPool.query(studentSql, [
+        studentId
+    ]);
     const [themes] = await connectionPool.query(themesSql, [
         programId,
         themeTypeId
     ]);
     for(theme of themes) {
         const [grades] = await connectionPool.query(gradesSql, [
-            userId,
-            theme.theme_id
+            studentId,
+            theme.id
         ]);
         theme.grades = grades
     }
-    return themes;
+    student[0].themes = themes
+    return student[0];
 }
 
 const getGroupGradesForTheme = async (groupId, programId, themeTypeId) => {
-    // Отримання користувачів вказаної групи
-    const usersSql = `
-        SELECT user.id, user.first_name, user.last_name, user.father_name
+    // Отримання id студентів вказаної групи
+    const studentsSql = `
+        SELECT user.id
         FROM user, student
         WHERE (user.id = student.user_id) AND (student.group_id = ?)
     `;
 
-    const [users] = await connectionPool.query(usersSql, [
+    const [students] = await connectionPool.query(studentsSql, [
         groupId
     ]);
-    for(user of users) {
-        const themes = await getUserGradesForTheme(user.id, programId, themeTypeId)
-        user.themes = themes
+    const group = [];
+    for(let i=0; i<students.length; i++) {
+        const studentGrades = await getStudentGradesForTheme(
+            students[i].id,
+            programId,
+            themeTypeId
+        )
+        group[i] = studentGrades
     }
-    return users;
+    return group;
 }
 
 const getGrades = async (userId, subjectId) => {
@@ -119,9 +134,9 @@ const deleteGrade = async (gradeId) => {
 module.exports = {
     // Добавлення нової оцінки студенту
     addGrade,
-    // Отримання оцінок користувача за певний тип роботи (лабораторні, практичні...)
+    // Отримання оцінок студента за певний тип роботи (лабораторні, практичні...)
     // по вказаній програмі навчання
-    getUserGradesForTheme,
+    getStudentGradesForTheme,
     // Отримання оцінок групи за певний тип роботи (лабораторні, практичні...)
     // по вказаній програмі навчання
     getGroupGradesForTheme,

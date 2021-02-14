@@ -6,9 +6,9 @@ const { body, param } = require("express-validator");
 const {
     // Добавлення нової оцінки студенту
     addGrade,
-    // Отримання оцінок користувача за певний тип роботи (лабораторні, практичні...)
+    // Отримання оцінок студента за певний тип роботи (лабораторні, практичні...)
     // по вказаній програмі навчання
-    getUserGradesForTheme,
+    getStudentGradesForTheme,
     // Отримання оцінок групи за певний тип роботи (лабораторні, практичні...)
     // по вказаній програмі навчання
     getGroupGradesForTheme,
@@ -34,17 +34,17 @@ router.post('/grades', [
     res.status(200).end();
 })
 
-router.get('/grades/program/:programId/theme_type/:themeTypeId/user/:userId', [
+router.get('/grades/program/:programId/theme_type/:themeTypeId/student/:studentId', [
     param('programId').toInt(),
     param('themeTypeId').toInt(),
-    param('userId').toInt()
+    param('studentId').toInt()
 ], [
     // middlewares
 ], async (req, res) => {
-    const userId = req.params.userId;
+    const studentId = req.params.studentId;
     const programId = req.params.programId;
     const themeTypeId = req.params.themeTypeId;
-    const grades = await getUserGradesForTheme(userId, programId, themeTypeId);
+    const grades = await getStudentGradesForTheme(studentId, programId, themeTypeId);
 
     res.status(200).json(grades);
 })
