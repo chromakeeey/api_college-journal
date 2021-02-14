@@ -4,16 +4,18 @@ const { query } = require('express');
 const addProgram = async (program) => {
     const sql = `
         INSERT INTO program_education
-        (specialty, course, subject_id, name)
+        (specialty_id, course, subject_id, name, first_semester, last_semester)
         VALUES
-        (?, ?, ?, ?)
+        (?, ?, ?, ?, ?, ?)
     `;
 
     const [rows] = await connectionPool.query(sql, [
         program.specialty_id,
         program.course,
         program.subject_id,
-        program.name
+        program.name,
+        program.first_semester,
+        program.last_semester
     ]);
 
     return rows.insertId;

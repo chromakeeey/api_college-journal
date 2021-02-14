@@ -24,7 +24,9 @@ router.post('/programs', [
     body('name').isLength({
         min: 2,
         max: 128
-    })
+    }),
+    body('first_semester').isInt(),
+    body('last_semester').isInt()
 ], [
     // middlewares
 ], async (req, res) => {
