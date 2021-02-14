@@ -12,8 +12,7 @@ const {
     // Отримання оцінок групи за певний тип роботи (лабораторні, практичні...)
     // по вказаній програмі навчання
     getGroupGradesForTheme,
-    getGrades,
-    getGroupGrades,
+    // Видалення оцінки по id
     deleteGrade
 } = require('../mysql/grade.commands')
 
@@ -30,8 +29,8 @@ router.post('/grades', [
 ], async (req, res) => {
     const grade = req.body;
 
-    await addGrade(grade);
-    res.status(200).end();
+    const insertedId = await addGrade(grade);
+    res.status(200).json(insertedId);
 })
 
 router.get('/grades/program/:programId/theme_type/:themeTypeId/student/:studentId', [
@@ -64,41 +63,15 @@ router.get('/grades/program/:programId/theme_type/:themeTypeId/group/:groupId', 
     res.status(200).json(grades);
 })
 
-router.get('/users/:userid/subjects/:subjectid/grades', [
-    param('userid').toInt(),
-    param('subjectid').toInt(),
+router.delete('/grades/:gradeId', [
+    param('gradeId').toInt()
 ], [
     // middlewares
 ], async (req, res) => {
-    const userId = req.params.userid;
-    const subjectId = req.params.subjectid;
-    const grades = await getGrades(userId, subjectId);
+    const gradeId = req.params.gradeId;
 
-    res.status(200).json(grades);
-})
-
-router.get('/groups/:groupid/subjects/:subjectid/grades', [
-    param('groupid').toInt(),
-    param('subjectid').toInt(),
-], [
-    // middlewares
-], async (req, res) => {
-    const groupId = req.params.groupid;
-    const subjectId = req.params.subjectid;
-    const groupGrades = await getGroupGrades(groupId, subjectId);
-
-    res.status(200).json(groupGrades);
-})
-
-router.delete('/grades/:id', [
-    param('id').toInt()
-], [
-    // middlewares
-], async (req, res) => {
-    const id = req.params.id;
-
-    await deleteGrade(id);
-    res.status(200).end();
+    const affectedRows =  await deleteGrade(gradeId);
+    res.status(200).json(affectedRows);
 })
 
 module.exports = router;

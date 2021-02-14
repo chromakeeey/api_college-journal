@@ -19,6 +19,59 @@ const addProgram = async (program) => {
     return rows.insertId;
 }
 
+const getProgramAndThemes = async (programId) => {
+    // Отримання інформації про програму навчання
+    const programSql = `
+        SELECT *
+        FROM program_education
+        WHERE id = ?
+    `;
+    // Отримання всіх тем вказаної програми навчання
+    const themesSql = `
+        SELECT theme.id, theme.name, type.name as type
+        FROM program_themes as theme, theme_types as type
+        WHERE (theme.theme_type_id = type.id) AND (theme.program_education_id = ?)
+    `;
+    const [program] = await connectionPool.query(programSql, [
+        programId
+    ]);
+    const [themes] = await connectionPool.query(themesSql, [
+        programId
+    ]);
+    if (program.length === 0) {
+        return program[0];
+    }
+    program[0].themes = themes
+    return program[0];
+}
+
+const getProgramAndThemesByType = async (programId, themeTypeId) => {
+    // Отримання інформації про програму навчання
+    const programSql = `
+        SELECT *
+        FROM program_education
+        WHERE id = ?
+    `;
+    const themesSql = `
+        SELECT theme.id, theme.name, type.name as type
+        FROM program_themes as theme, theme_types as type
+        WHERE (theme.program_education_id = ?) AND
+        ((theme.theme_type_id = type.id) AND (type.id = ?))
+    `;
+    const [program] = await connectionPool.query(programSql, [
+        programId
+    ]);
+    const [themes] = await connectionPool.query(themesSql, [
+        programId,
+        themeTypeId
+    ]);
+    if (program.length === 0) {
+        return program[0];
+    }
+    program[0].themes = themes
+    return program[0];
+}
+
 const getPrograms = async (course, specialtyId) => {
     const sql = `
         SELECT id, subject_id, name, first_semester, last_semester
@@ -81,10 +134,15 @@ const deleteProgram = async (programId) => {
 }
 
 module.exports = {
-    // Програма навчання
+    // Добавлення нової програми навчання
     addProgram,
+    // Отримання програми навчання і всіх її тем
+    getProgramAndThemes,
+    // Отримання програми навчання і всіх її тем певного типу роботи
+    // (лабораторні, практичні...)
+    getProgramAndThemesByType,
     getPrograms,
     getProgram,
     changeProgramName,
-    deleteProgram,
+    deleteProgram
 }

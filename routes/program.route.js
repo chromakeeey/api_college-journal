@@ -4,11 +4,16 @@ const router = Router();
 const { body, param } = require("express-validator");
 
 const {
-    // Програма навчання
-    addProgram, //ok
+    // Добавлення нової програми навчання
+    addProgram,
+    // Отримання програми навчання і всіх її тем
+    getProgramAndThemes,
+    // Отримання програми навчання і всіх її тем певного типу роботи
+    // (лабораторні, практичні...)
+    getProgramAndThemesByType,
     getPrograms,
-    getProgram, //ok
-    changeProgramName, //ok
+    getProgram,
+    changeProgramName,
     deleteProgram
 } = require('../mysql/program.commands')
 
@@ -25,8 +30,32 @@ router.post('/programs', [
 ], async (req, res) => {
     const program = req.body;
 
-    await addProgram(program);
-    res.status(200).end();
+    const insertedId = await addProgram(program);
+    res.status(200).json(insertedId);
+})
+
+router.get('/programs/:programId', [
+    param('programId').toInt()
+], [
+    // middlewares
+], async (req, res) => {
+    const programId = req.params.programId;
+    const program = await getProgramAndThemes(programId);
+
+    res.status(200).json(program);
+})
+
+router.get('/programs/:programId/theme_type/:themeTypeId', [
+    param('programId').toInt(),
+    param('themeTypeId').toInt()
+], [
+    // middlewares
+], async (req, res) => {
+    const programId = req.params.programId;
+    const themeTypeId = req.params.themeTypeId;
+    const program = await getProgramAndThemesByType(programId, themeTypeId);
+
+    res.status(200).json(program);
 })
 
 router.get('/course/:courseNumber/specialty/:specialtyId/programs', [
@@ -68,14 +97,14 @@ router.put('/programs/:id/name', [
     res.status(200).end();
 })
 
-router.delete('/programs/:id', [
-    param('id').toInt()
+router.delete('/programs/:programId', [
+    param('programId').toInt()
 ], [
     // middlewares
 ], async (req, res) => {
-    const id = req.params.id;
+    const programId = req.params.programId;
 
-    await deleteProgram(id);
+    await deleteProgram(programId);
     res.status(200).end();
 })
 

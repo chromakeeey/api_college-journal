@@ -4,14 +4,16 @@ const router = Router();
 const { body, param } = require("express-validator");
 
 const {
-    // Теми програми навчання
+    // Добавлення нової теми до програми навчання
     addTheme,
+    // Отримання інформації про тему навчання
     getTheme,
+    // Видалення теми по id
     deleteTheme
 } = require('../mysql/theme.commands')
 
-router.post('/programs/:id/themes', [
-    param('id').toInt(),
+router.post('/themes', [
+    body('program_education_id').isInt(),
     body('name').isLength({
         min: 2,
         max: 64
@@ -20,35 +22,32 @@ router.post('/programs/:id/themes', [
 ], [
     // middlewares
 ], async(req, res) => {
-    const id = req.params.id;
-    let theme = req.body;
+    const theme = req.body;
 
-    theme.program_education_id = id;
-
-    await addTheme(id, theme);
-    res.status(200).end();
+    const insertedId = await addTheme(theme);
+    res.status(200).json(insertedId);
 })
 
-router.get('/themes/:id', [
-    param('id').toInt()
+router.get('/themes/:themeId', [
+    param('themeId').toInt()
 ], [
     // middlewares
 ], async (req, res) => {
-    const id = req.params.id;
-    const theme = await getTheme(id);
+    const themeId = req.params.themeId;
+    const theme = await getTheme(themeId);
 
     res.status(200).json(theme);
 })
 
-router.delete('/themes/:id', [
-    param('id').toInt()
+router.delete('/themes/:themeId', [
+    param('themeId').toInt()
 ], [
     // middlewares
 ], async (req, res) => {
-    const id = req.params.id;
+    const themeId = req.params.themeId;
 
-    await deleteTheme(id);
-    res.status(200).end();
+    const affectedRows =  await deleteTheme(themeId);
+    res.status(200).json(affectedRows);
 })
 
 module.exports = router;
