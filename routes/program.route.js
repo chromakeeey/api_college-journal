@@ -6,14 +6,18 @@ const { body, param } = require("express-validator");
 const {
     // Добавлення нової програми навчання
     addProgram,
+    // Отримання списку всіх програм навчання
+    getAllProgramList,
+    // Отримання списку програм навчання для певного курсу і спеціальності
+    getProgramList,
     // Отримання програми навчання і всіх її тем
     getProgramAndThemes,
     // Отримання програми навчання і всіх її тем певного типу роботи
     // (лабораторні, практичні...)
     getProgramAndThemesByType,
-    getPrograms,
-    getProgram,
+    // Перейменування програми навчання
     changeProgramName,
+    // Видалення програми
     deleteProgram
 } = require('../mysql/program.commands')
 
@@ -34,6 +38,28 @@ router.post('/programs', [
 
     const insertedId = await addProgram(program);
     res.status(200).json(insertedId);
+})
+
+router.get('/programs', [
+], [
+    // middlewares
+], async (req, res) => {
+    const programs = await getAllProgramList()
+
+    res.status(200).json(programs);
+})
+
+router.get('/programs/course/:courseNumber/specialty/:specialtyId', [
+    param('courseNumber').toInt(),
+    param('specialtyId').toInt()
+], [
+    // middlewares
+], async (req, res) => {
+    const course = req.params.courseNumber;
+    const specialtyId = req.params.specialtyId;
+    const programs = await getProgramList(course, specialtyId)
+
+    res.status(200).json(programs);
 })
 
 router.get('/programs/:programId', [
@@ -60,31 +86,8 @@ router.get('/programs/:programId/theme_type/:themeTypeId', [
     res.status(200).json(program);
 })
 
-router.get('/course/:courseNumber/specialty/:specialtyId/programs', [
-    param('id').toInt()
-], [
-    // middlewares
-], async (req, res) => {
-    const course = req.params.courseNumber;
-    const specialtyId = req.params.specialtyId;
-    const programs = await getPrograms(course, specialtyId)
-
-    res.status(200).json(programs);
-} )
-
-router.get('/programs/:id', [
-    param('id').toInt()
-], [
-    // middlewares
-], async (req, res) => {
-    const id = req.params.id;
-    const program = await getProgram(id)
-
-    res.status(200).json(program);
-} )
-
-router.put('/programs/:id/name', [
-    param('id').toInt(),
+router.put('/programs/:programId/name', [
+    param('programId').toInt(),
     body('name').isLength({
         min: 2,
         max: 64
@@ -92,10 +95,10 @@ router.put('/programs/:id/name', [
 ], [
     // middlewares
 ], async (req, res) => {
-    const id = req.params.id;
+    const programId = req.params.programId;
     const { name } = req.body;
 
-    await changeProgramName(id, name);
+    await changeProgramName(programId, name);
     res.status(200).end();
 })
 

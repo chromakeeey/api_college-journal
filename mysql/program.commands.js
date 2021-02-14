@@ -21,12 +21,49 @@ const addProgram = async (program) => {
     return rows.insertId;
 }
 
+const getAllProgramList = async () => {
+    const programsSql = `
+        SELECT edu.id, edu.name, edu.course,
+            specialty.name as specialty,
+            subject.name as subject,
+            edu.first_semester, edu.last_semester
+
+        FROM program_education as edu, specialty, subject
+        WHERE (edu.specialty_id = specialty.id) AND (edu.subject_id = subject.id)
+    `;
+    const [programs] = await connectionPool.query(programsSql, [])
+    return programs;
+}
+
+const getProgramList = async (course, specialtyId) => {
+    const programsSql = `
+        SELECT edu.id, edu.name, edu.course,
+            specialty.name as specialty,
+            subject.name as subject,
+            edu.first_semester, edu.last_semester
+
+        FROM program_education as edu, specialty, subject
+        WHERE ((edu.specialty_id = specialty.id) AND (edu.subject_id = subject.id))
+        AND ((edu.course = ?) AND (edu.specialty_id = ?))
+    `;
+    const [programs] = await connectionPool.query(programsSql, [
+        course,
+        specialtyId
+    ])
+    return programs;
+}
+
 const getProgramAndThemes = async (programId) => {
     // Отримання інформації про програму навчання
     const programSql = `
-        SELECT *
-        FROM program_education
-        WHERE id = ?
+        SELECT edu.id, edu.name, edu.course,
+            specialty.name as specialty,
+            subject.name as subject,
+            edu.first_semester, edu.last_semester
+
+        FROM program_education as edu, specialty, subject
+        WHERE ((edu.specialty_id = specialty.id) AND (edu.subject_id = subject.id))
+        AND edu.id = ?
     `;
     // Отримання всіх тем вказаної програми навчання
     const themesSql = `
@@ -50,9 +87,14 @@ const getProgramAndThemes = async (programId) => {
 const getProgramAndThemesByType = async (programId, themeTypeId) => {
     // Отримання інформації про програму навчання
     const programSql = `
-        SELECT *
-        FROM program_education
-        WHERE id = ?
+        SELECT edu.id, edu.name, edu.course,
+            specialty.name as specialty,
+            subject.name as subject,
+            edu.first_semester, edu.last_semester
+
+        FROM program_education as edu, specialty, subject
+        WHERE ((edu.specialty_id = specialty.id) AND (edu.subject_id = subject.id))
+        AND edu.id = ?
     `;
     const themesSql = `
         SELECT theme.id, theme.name, type.name as type
@@ -71,31 +113,6 @@ const getProgramAndThemesByType = async (programId, themeTypeId) => {
         return program[0];
     }
     program[0].themes = themes
-    return program[0];
-}
-
-const getPrograms = async (course, specialtyId) => {
-    const sql = `
-        SELECT id, subject_id, name, first_semester, last_semester
-        FROM program_education
-        WHERE (course = ?) AND (specialty_id = ?)
-    `;
-    const [programs] = await connectionPool.query(sql, [
-        course,
-        specialtyId
-    ])
-    return programs;
-}
-
-const getProgram = async (programId) => {
-    let [program] = await connectionPool.query('SELECT * FROM program_education WHERE id = ?', programId);
-    let [themes] = await connectionPool.query('SELECT id, name, theme_type_id FROM program_themes WHERE program_education_id = ?', programId);
-    
-    if (program.length === 0) {
-        return program[0];
-    }
-
-    program[0].themes = themes;
     return program[0];
 }
 
@@ -138,13 +155,17 @@ const deleteProgram = async (programId) => {
 module.exports = {
     // Добавлення нової програми навчання
     addProgram,
+    // Отримання списку всіх програм навчання
+    getAllProgramList,
+    // Отримання списку програм навчання для певного курсу і спеціальності
+    getProgramList,
     // Отримання програми навчання і всіх її тем
     getProgramAndThemes,
     // Отримання програми навчання і всіх її тем певного типу роботи
     // (лабораторні, практичні...)
     getProgramAndThemesByType,
-    getPrograms,
-    getProgram,
+    // Перейменування програми навчання
     changeProgramName,
+    // Видалення програми
     deleteProgram
 }

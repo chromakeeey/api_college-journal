@@ -13,7 +13,7 @@ const addGrade = async (grade) => {
         grade.program_themes_id,
         grade.user_id,
         grade.mark,
-        grade.description,
+        grade.description
     ]);
     return rows.insertId;
 }
