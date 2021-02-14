@@ -4,8 +4,14 @@ const router = Router();
 const { body, param } = require("express-validator");
 
 const {
-    // Оцінки
+    // Добавлення нової оцінки студенту
     addGrade,
+    // Отримання оцінок користувача за певний тип роботи (лабораторні, практичні...)
+    // по вказаній програмі навчання
+    getUserGradesForTheme,
+    // Отримання оцінок групи за певний тип роботи (лабораторні, практичні...)
+    // по вказаній програмі навчання
+    getGroupGradesForTheme,
     getGrades,
     getGroupGrades,
     deleteGrade
@@ -14,7 +20,6 @@ const {
 router.post('/grades', [
     body('program_themes_id').isInt(),
     body('user_id').isInt(),
-    body('subject_group_id').isInt(),
     body('mark').isInt(),
     body('description').isLength({
         min: 2,
@@ -27,6 +32,36 @@ router.post('/grades', [
 
     await addGrade(grade);
     res.status(200).end();
+})
+
+router.get('/grades/program/:programId/theme_type/:themeTypeId/user/:userId', [
+    param('programId').toInt(),
+    param('themeTypeId').toInt(),
+    param('userId').toInt()
+], [
+    // middlewares
+], async (req, res) => {
+    const userId = req.params.userId;
+    const programId = req.params.programId;
+    const themeTypeId = req.params.themeTypeId;
+    const grades = await getUserGradesForTheme(userId, programId, themeTypeId);
+
+    res.status(200).json(grades);
+})
+
+router.get('/grades/program/:programId/theme_type/:themeTypeId/group/:groupId', [
+    param('programId').toInt(),
+    param('themeTypeId').toInt(),
+    param('groupId').toInt()
+], [
+    // middlewares
+], async (req, res) => {
+    const groupId = req.params.groupId;
+    const programId = req.params.programId;
+    const themeTypeId = req.params.themeTypeId;
+    const grades = await getGroupGradesForTheme(groupId, programId, themeTypeId);
+
+    res.status(200).json(grades);
 })
 
 router.get('/users/:userid/subjects/:subjectid/grades', [

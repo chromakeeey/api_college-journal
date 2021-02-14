@@ -22,8 +22,8 @@ const addProgram = async (program) => {
 const getPrograms = async (course, specialtyId) => {
     const sql = `
         SELECT id, subject_id, name, first_semester, last_semester
-        FROM program_education as p_e
-        WHERE (p_e.course = ?) AND (p_e.specialty_id = ?)
+        FROM program_education
+        WHERE (course = ?) AND (specialty_id = ?)
     `;
     const [programs] = await connectionPool.query(sql, [
         course,
